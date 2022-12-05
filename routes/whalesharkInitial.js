@@ -572,7 +572,7 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
                     return
                 }
                 if(type!=null||type!=undefined){
-                    animalExists.animalType=type
+                    animalExists.animaltype=type
                  }
                 if(photo!=null||photo!=undefined){
                    animalExists.photo=photo
@@ -801,7 +801,7 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
                     return
                 }
                 if(type!=null||type!=undefined){
-                    animalExists.animalType=type
+                    animalExists.animaltype=type
                  }
                 if(photo!=null||photo!=undefined){
                    animalExists.photo=photo
@@ -846,5 +846,63 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
                 console.log(e)
             }
         })
-        
+router.post('/animal/list',userAuth, async (req, res) => { 
+    
+            try {
+                var displayList = await waterModel.find({status: "Active" })
+                
+                res.status(200).json
+                        (
+                            {
+                                status: true,
+                                output:displayList
+                            }
+                        )
+                    return
+            }
+            catch (e) {
+                console.log(e)
+            }
+        })
+ router.post('/animal/list/view',userAuth, async (req, res) => { 
+    
+            try {
+                
+                var{animalId}=req.body
+               
+                var animalView= await waterModel.findOne({status:"Active",_id:animalId}).populate("usersId")
+               
+                res.status(200).json
+                        (
+                            {
+                                status: true,
+                                output:animalView
+                            }
+                        )
+                    return
+            }
+            catch (e) {
+                console.log(e)
+            }
+        })
+        router.post('/animal/delete',userAuth, async (req, res) => { 
+    
+            try {
+                var {id} = req.body;
+                var animalDelete = await waterModel.findOne({_id: id })
+                animalDelete.status="Delete"
+                await animalDelete.save()
+                res.status(200).json
+                        (
+                            {
+                                status: true,
+                                msg:"Animal data Deleted"
+                            }
+                        )
+                    return
+            }
+            catch (e) {
+                console.log(e)
+            }
+        })
 module.exports = router

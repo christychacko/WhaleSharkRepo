@@ -33,7 +33,10 @@ var waterModelSchema=mongoose.Schema({
   },
     healthStatus:{
           type :String
-    }
-    
+    },
+    usersId:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"userModel"
+    },
 })
 module.exports=mongoose.model("waterModel",waterModelSchema);
