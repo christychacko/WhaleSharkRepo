@@ -2,7 +2,10 @@ const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const userModel = require('../models/userModel')
-
+const tokenModel = require('../models/tokenModel')
+const waterModel = require('../models/waterModel')
+const userAuth = require('../middleware/userAuth')
+const adminAuth = require('../middleware/adminAuth')
 
 let router = express()
 
@@ -151,9 +154,6 @@ router.post('/login', async (req, res) => {
             tokenData.token = token
 
             await tokenData.save()
-
-
-            
 
             res.status(200).json({
                 status:true,
@@ -340,7 +340,7 @@ router.post('/user/profile/withtoken', userAuth,async (req, res) => {
 })
 
 
-router.post('/user/edit/new', async (req, res) => { 
+router.post('/user/edit/new',userAuth, async (req, res) => { 
     try {
          var{ role, userName, name, phone, email,id}= req.body
         
@@ -397,5 +397,454 @@ router.post('/user/edit/new', async (req, res) => {
             console.log(e)
         }
     })
+    router.post('/in/net',userAuth, async (req, res) => {
+        try {
+            var { type,photo,length,gender,location,description,boatNo,boatOwner,docs} = req.body;
+    
+            if (type == undefined || type== null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "type is not given"
+    
+                        }
+                    )
+                return
+            }
+
+            if (type!="inNet") {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "type given is not inNet"
+    
+                        }
+                    )
+                return
+            }
+    
+            // if (photo == undefined || photo == null) {
+            //     res.status(200).json
+            //         (
+            //             {
+            //                 status: false,
+            //                 msg: "Photo is not given"
+    
+            //             }
+            //         )
+            //     return
+            // }
+            if (length == undefined || length == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "length is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (gender == undefined || gender == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "gender is not given"
+    
+                        }
+                    )
+                return
+            }
+    
+            if (location == undefined || location == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Location is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (description == undefined || description == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Description is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (boatNo == undefined || boatNo== null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "boat number is not given or invalid"
+    
+                        }
+                    )
+                return
+            }
+            
+            if (boatOwner == undefined || boatOwner == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Boat Owner is not given or invalid"
+    
+                        }
+                    )
+                return
+            }
+
+            // if (docs == undefined || docs == null) {
+            //     res.status(200).json
+            //         (
+            //             {
+            //                 status: false,
+            //                 msg: "doc is not given or invalid type"
+    
+            //             }
+            //         )
+            //     return
+            // }
+           
+            var inNet = new waterModel()
+
+           inNet.animalType=type,
+           inNet.photo=photo,
+           inNet.animalLength=length,
+           inNet.gender=gender,
+           inNet.description=description,
+           inNet.location=location,
+           inNet.boatNo= boatNo,
+           inNet.boatOwner= boatOwner,
+           inNet.document=docs
+           
+            await inNet.save()
+    
+            res.status(200).json({
+    
+                status: true,
+                output: inNet
+    
+            })
+            return
+    
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+    router.post('/inNet/edit',userAuth, async (req, res) => { 
+        try {
+             var{ id,type,photo,length,gender,location,description,boatNo,boatOwner,docs}= req.body
+            
+                
+             if(id==null||id==undefined){
+                res.status(200).json
+                   (
+                       {
+                               status: true,
+                               msg: "id is not given"
+                       }
+                   )
+                   return;
+               }
+    
+               var animalExists=await waterModel.findOne({_id:id})
+                if(animalExists==null||animalExists==undefined){
+                 res.status(200).json
+                    (
+                        {
+                                status: false,
+                                msg: "id not found"
+                        }
+                    )
+                    return
+                }
+                if(type!=null||type!=undefined){
+                    animalExists.animalType=type
+                 }
+                if(photo!=null||photo!=undefined){
+                   animalExists.photo=photo
+                }
+                if(length!=null||length!=undefined){
+                    animalExists.animalLength=length
+                 }
+                 if(gender!=null||gender!=undefined){
+                    animalExists.gender=gender
+                   }
+                 if(location!=null||location!=undefined){
+                    animalExists.location=location
+                   }
+                if(description!=null||description!=undefined){
+                    animalExists.description=description
+                }
+                if(boatNo!=null||boatNo!=undefined){
+                    animalExists.boatNo=boatNo
+                }
+                if(boatOwner!=null||boatOwner!=undefined){
+                    animalExists.boatOwner=boatOwner
+                } 
+                if(docs!=null||docs!=undefined){
+                    animalExists.document=docs
+                }
+
+                   await animalExists.save()
+    
+                   res.status(200).json
+                           (
+                               {
+                                   status: true,
+                                   output: animalExists
+                               }
+                           )
+                       return
+                }
+            catch (e) {
+                console.log(e)
+            }
+        })
+    router.post('/natural/water',userAuth, async (req, res) => {
+        try {
+            var { type,photo,length,gender,healthStatus,location,description,boatNo,boatOwner,docs} = req.body;
+    
+            if (type == undefined || type== null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "type is not given"
+    
+                        }
+                    )
+                return
+            }
+
+            if (type!="naturalWater") {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "type given is not naturalWater"
+    
+                        }
+                    )
+                return
+            }
+    
+            // if (photo == undefined || photo == null) {
+            //     res.status(200).json
+            //         (
+            //             {
+            //                 status: false,
+            //                 msg: "Photo is not given"
+    
+            //             }
+            //         )
+            //     return
+            // }
+            if (length == undefined || length == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "length is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (gender == undefined || gender == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "gender is not given"
+    
+                        }
+                    )
+                return
+            }
+            
+            if (healthStatus == undefined || healthStatus == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Status of health is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (location == undefined || location == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Location is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (description == undefined || description == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Description is not given"
+    
+                        }
+                    )
+                return
+            }
+            if (boatNo == undefined || boatNo== null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "boat number is not given or invalid"
+    
+                        }
+                    )
+                return
+            }
+            
+            if (boatOwner == undefined || boatOwner == null) {
+                res.status(200).json
+                    (
+                        {
+                            status: false,
+                            msg: "Boat Owner is not given or invalid"
+    
+                        }
+                    )
+                return
+            }
+
+            // if (docs == undefined || docs == null) {
+            //     res.status(200).json
+            //         (
+            //             {
+            //                 status: false,
+            //                 msg: "doc is not given or invalid type"
+    
+            //             }
+            //         )
+            //     return
+            // }
+           
+            var NWater = new waterModel()
+
+           NWater.animaltype=type,
+           NWater.photo=photo,
+           NWater.animalLength=length,
+           NWater.gender=gender,
+           NWater.healthStatus=healthStatus,
+           NWater.location=location,
+           NWater.description=description,
+           NWater.boatNo= boatNo,
+           NWater.boatOwner= boatOwner,
+           NWater.document=docs
+           
+            await NWater.save()
+    
+            res.status(200).json({
+    
+                status: true,
+                output: NWater
+    
+            })
+            return
+    
+        }
+        catch (e) {
+            console.log(e)
+        }
+    })
+    router.post('/natural/water/edit',userAuth, async (req, res) => { 
+        try {
+             var{ id,type,photo,length,gender,healthStatus, location,description,boatNo,boatOwner,docs}= req.body
+            
+                
+             if(id==null||id==undefined){
+                res.status(200).json
+                   (
+                       {
+                               status: true,
+                               msg: "id is not given"
+                       }
+                   )
+                   return;
+               }
+    
+               var animalExists=await waterModel.findOne({_id:id})
+                if(animalExists==null||animalExists==undefined){
+                 res.status(200).json
+                    (
+                        {
+                                status: false,
+                                msg: "id not found"
+                        }
+                    )
+                    return
+                }
+                if(type!=null||type!=undefined){
+                    animalExists.animalType=type
+                 }
+                if(photo!=null||photo!=undefined){
+                   animalExists.photo=photo
+                }
+                if(length!=null||length!=undefined){
+                    animalExists.animalLength=length
+                 }
+                 if(gender!=null||gender!=undefined){
+                    animalExists.gender=gender
+                   }
+                   if(healthStatus!=null||healthStatus!=undefined){
+                    animalExists.healthStatus=healthStatus
+                   }
+                 if(location!=null||location!=undefined){
+                    animalExists.location=location
+                   }
+                if(description!=null||description!=undefined){
+                    animalExists.description=description
+                }
+                if(boatNo!=null||boatNo!=undefined){
+                    animalExists.boatNo=boatNo
+                }
+                if(boatOwner!=null||boatOwner!=undefined){
+                    animalExists.boatOwner=boatOwner
+                } 
+                if(docs!=null||docs!=undefined){
+                    animalExists.document=docs
+                }
+
+                   await animalExists.save()
+    
+                   res.status(200).json
+                           (
+                               {
+                                   status: true,
+                                   output: animalExists
+                               }
+                           )
+                       return
+                }
+            catch (e) {
+                console.log(e)
+            }
+        })
 
 module.exports = router
