@@ -4,6 +4,9 @@ var waterModelSchema=mongoose.Schema({
         type:String,
         default:"Active"
     },
+    animaltype:{
+        type:String
+    },
     photo:{
         type:String
     },
@@ -18,6 +21,19 @@ var waterModelSchema=mongoose.Schema({
     },
     location:{
         type:String
+    },
+    boatNo:{
+        type:Number
+    },
+    boatOwner:{
+         type:String
+    },
+    document:{
+        type :String
+  },
+    healthStatus:{
+          type :String
     }
+    
 })
 module.exports=mongoose.model("waterModel",waterModelSchema);
