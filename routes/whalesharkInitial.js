@@ -312,9 +312,9 @@ router.post('/verifytoken/middleware', async (req, res) => {
     }
 })
 
-router.post('/user/profile/withtoken', userAuth,async (req, res) => {
+router.post('/user/profile/withtoken',async (req, res) => {
     try {
-        var { token } = req.body;
+        var{token}= req.body;
         if (token == null || token == undefined) {
             res.status(200).json({
                 status: false,
@@ -399,6 +399,8 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
     })
     router.post('/in/net',userAuth, async (req, res) => {
         try {
+
+            var uid = req.user.user._id;
             var { type,photo,length,gender,location,description,boatNo,boatOwner,docs} = req.body;
     
             if (type == undefined || type== null) {
@@ -519,6 +521,7 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
            
             var inNet = new waterModel()
 
+           inNet.usersId=uid, 
            inNet.animalType=type,
            inNet.photo=photo,
            inNet.animalLength=length,
@@ -546,6 +549,7 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
     })
     router.post('/inNet/edit',userAuth, async (req, res) => { 
         try {
+            
              var{ id,type,photo,length,gender,location,description,boatNo,boatOwner,docs}= req.body
             
                 
@@ -616,6 +620,8 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
         })
     router.post('/natural/water',userAuth, async (req, res) => {
         try {
+
+            var uid = req.user.user._id;
             var { type,photo,length,gender,healthStatus,location,description,boatNo,boatOwner,docs} = req.body;
     
             if (type == undefined || type== null) {
@@ -746,7 +752,7 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
             // }
            
             var NWater = new waterModel()
-
+            NWater.usersId=uid,
            NWater.animaltype=type,
            NWater.photo=photo,
            NWater.animalLength=length,
@@ -849,7 +855,8 @@ router.post('/user/edit/new',userAuth, async (req, res) => {
 router.post('/animal/list',userAuth, async (req, res) => { 
     
             try {
-                var displayList = await waterModel.find({status: "Active" })
+                var uid = req.user.user._id;
+                var displayList = await waterModel.find({status: "Active",usersId:uid })
                 
                 res.status(200).json
                         (
@@ -905,4 +912,38 @@ router.post('/animal/list',userAuth, async (req, res) => {
                 console.log(e)
             }
         })
+router.post('/logout', async (req, res) => { 
+    
+    try {
+        //var uid = req.user.user._id;
+        var{token}=req.body
+        var tokenexists= await tokenModel.deleteOne({status:"Active",token:token})
+                
+            //     if (token == undefined || token == null) {
+            //         res.status(200).json
+            //             (
+            //                 {
+            //                     status: false,
+            //                     msg: "Token not given"
+            //                 }
+            //             )
+            //         return
+            //     }
+            //     tokenexists.status='Delete'
+            // await tokenexists.save()
+        
+                    res.status(200).json
+                        (
+                            {
+                                status: true,
+                                msg: "Logout Successful"
+                            }
+                        )
+                    return
+                
+            }
+            catch (e) {
+                console.log(e)
+            }
+        })    
 module.exports = router
